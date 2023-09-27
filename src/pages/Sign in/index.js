@@ -6,11 +6,21 @@ import * as Animatable from 'react-native-animatable';
 
 import { useNavigation } from '@react-navigation/native';
 
+// import firebase from '../services/firebaseConnection';
+
 export default function SignIn(){
 
     const navigation = useNavigation();
     const [input, setInput] = useState('');
     const [hidePass, setHidePass] = useState(true);
+
+    const [nome, setNome] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    function handleLogin(){
+        alert('corinthians não tem sulamericana')
+    }
     
     return (
         <View style={styles.container}>
@@ -23,6 +33,8 @@ export default function SignIn(){
                 <Text style={styles.title}>Nome</Text>
                 <TextInput
                     placeholder="Digite seu nome..."
+                    value={email}
+                    onChangeText={ (text) => setNome (text) }
                     style={styles.input}
                 />   
 
@@ -32,6 +44,8 @@ export default function SignIn(){
                     keyboardType="email-address"
                     autoCapitalize="none"
                     autoComplete="email"
+                    value={email}
+                    onChangeText={ (text) => setEmail(text) }
                     style={styles.input}
                 />      
 
@@ -43,6 +57,8 @@ export default function SignIn(){
                         value={input}
                         onChangeText={ ( texto) => setInput(texto) }
                         secureTextEntry={hidePass}
+                        value1={password}
+                        onChangeText1={ ( texto) => setPassword(texto) }
                     />
 
                     <TouchableOpacity style={styles.icon} onPress={ () => setHidePass(!hidePass)}>
@@ -55,7 +71,10 @@ export default function SignIn(){
 
                 </View>
 
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity 
+                    style={styles.button}
+                    onPress={handleLogin}
+                    >
                     <Text style={styles.buttonText}>Cadastrar</Text>
                 </TouchableOpacity>
 
