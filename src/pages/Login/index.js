@@ -1,74 +1,109 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity  } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, ScrollView  } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
 
 import * as Animatable from 'react-native-animatable';
 
 import { useNavigation } from '@react-navigation/native';
+
+import firebase from '../../services/firebaseConnection';
 
 export default function Login(){
     const navigation = useNavigation();
     const [input, setInput] = useState('');
     const [hidePass, setHidePass] = useState(true);
 
-    return (
-        <View style={styles.container}>
-            <Animatable.View animation="fadeInLeft" delay={900} style={styles.containerHeader}>
-                <Text style={styles.message}>Bem-vindo(a)</Text>
-            </Animatable.View>
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
-            <Animatable.View animation="fadeInUp" style={styles.containerForm}>
-                <Text style={styles.title}>Email</Text>
-                <TextInput
-                placeholder="Digite um email..."
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-                style={styles.input}
-                />
-
+    function handleLogin(){
+        firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(() =>{
+            console.log('Usuário logado com sucesso !');
+            alert('Seja Bem Vindo')
+            setEmail('');
+            setPassword('');
+            navigation.navigate('Home');
+        })
+       
+        .catch(error =>{ console.log('Usuario e senha não identificados')
+            alert('Usuário e senha não identificados')
             
-                <Text style={styles.title}>Senha</Text>
-                <View style={styles.inputArea}>
+        })
+    }
+
+    return (
+        <KeyboardAvoidingView
+            style={styles.container}
+            >
+            <ScrollView
+                contentContainerStyle={styles.scrollContainer}
+                keyboardShouldPersistTaps="handled"
+                >
+
+                <Animatable.View animation="fadeInLeft" delay={900} style={styles.containerHeader}>
+                    <Text style={styles.message}>Bem-vindo(a)</Text>
+                </Animatable.View>
+
+                <Animatable.View animation="fadeInUp" style={styles.containerForm}>
+                    <Text style={styles.title}>Email</Text>
                     <TextInput
-                    placeholder="Informe sua senha..."
+                    placeholder="Digite um email..."
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    value={email}
+                    onChangeText={ (text) => setEmail(text) }
                     style={styles.input}
-                    value={input}
-                    onChangeText={ ( texto) => setInput(texto) }
-                    secureTextEntry={hidePass}
                     />
-               
-                    <TouchableOpacity style={styles.icon} onPress={ () => setHidePass(!hidePass)}>
-                    {hidePass ?
-                        <Ionicons name="eye" color="#121212" size={25} />
-                        :
-                        <Ionicons name="eye-off" color="#121212" size={25} />
-                    }
+
+                
+                    <Text style={styles.title}>Senha</Text>
+                    <View style={styles.inputArea}>
+                        <TextInput
+                        placeholder="Informe sua senha..."
+                        style={styles.input}
+                       // value={input}
+                      //onChangeText={ ( texto) => setInput(texto) }
+                        secureTextEntry={hidePass}
+                        value={password}
+                        onChangeText={ ( texto) => setPassword(texto) }
+                        />
+                
+                        <TouchableOpacity style={styles.icon} onPress={ () => setHidePass(!hidePass)}>
+                        {hidePass ?
+                            <Ionicons name="eye" color="#121212" size={25} />
+                            :
+                            <Ionicons name="eye-off" color="#121212" size={25} />
+                        }
+                        </TouchableOpacity>
+
+                    </View>
+
+                    <TouchableOpacity 
+                        style={styles.button}
+                        onPress={handleLogin}
+                        >
+                        <Text style={styles.buttonText}>Entrar</Text>
                     </TouchableOpacity>
 
-                </View>
+                    <TouchableOpacity 
+                        style={styles.buttonRegister}
+                        onPress={ () => navigation.navigate('SignIn')}
+                        >
+                        <Text style={styles.registerText}>Não possui uma conta? Cadastre-se</Text>
+                    </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Entrar</Text>
-                </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={styles.buttonRegister}
+                        onPress={ () => navigation.navigate('ForgotPassword')}
+                        >
+                        <Text style={styles.registerText}>Esqueci a senha</Text>
+                    </TouchableOpacity>
 
-                <TouchableOpacity 
-                    style={styles.buttonRegister}
-                    onPress={ () => navigation.navigate('SignIn')}
-                    >
-                    <Text style={styles.registerText}>Não possui uma conta? Cadastre-se</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                    style={styles.buttonRegister}
-                    onPress={ () => navigation.navigate('ForgotPassword')}
-                    >
-                    <Text style={styles.registerText}>Esqueci a senha</Text>
-                </TouchableOpacity>
-
-            </Animatable.View>
-        </View>
+                </Animatable.View>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 
@@ -76,6 +111,11 @@ const styles = StyleSheet.create({
     container:{
         flex:1,
         backgroundColor:'#238dd1',
+    },
+
+    scrollContainer: {
+        flexGrow: 1,
+        justifyContent: 'center',
     },
 
     inputArea:{

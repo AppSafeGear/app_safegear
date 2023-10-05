@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity  } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView  } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import * as Animatable from 'react-native-animatable';
 
 import { useNavigation } from '@react-navigation/native';
 
-// import firebase from '../services/firebaseConnection';
+import firebase from '../../services/firebaseConnection';
+
 
 export default function SignIn(){
 
@@ -14,78 +15,107 @@ export default function SignIn(){
     const [input, setInput] = useState('');
     const [hidePass, setHidePass] = useState(true);
 
-    const [nome, setNome] = useState('');
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    function handleLogin(){
-        alert('corinthians não tem sulamericana')
+    function handleSignIn(){
+        firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then(userCredential =>{
+            console.log('user: ', userCredential);
+            alert('Usuário criado com sucesso')
+            setEmail(''),
+            setPassword(''),
+            setName(''),
+            navigation.navigate('Login');
+        })
+        .catch(error =>{
+           if (error.code === 'auth/email-already-in-use'){
+                console.log('email já existe');
+                alert ('Este email já está sendo usado');
+            }
+           
+            if (error.code === 'auth/invalid-email'){
+                console.log('Email inválido');
+                alert('Digite um email válido');
+            }
+        })
     }
     
+    
     return (
-        <View style={styles.container}>
-            <Animatable.View animation="fadeInLeft" delay={900} style={styles.containerHeader}>
-                    <Text style={styles.message}>Faça seu cadastro</Text>
-                </Animatable.View>
+        <KeyboardAvoidingView
+            style={styles.container}
+            >
+            <ScrollView
+                contentContainerStyle={styles.scrollContainer}
+                keyboardShouldPersistTaps="handled"
+                >
 
-            <Animatable.View animation="fadeInUp" style={styles.containerForm}>
+                <Animatable.View animation="fadeInLeft" delay={900} style={styles.containerHeader}>
+                        <Text style={styles.message}>Faça seu cadastro</Text>
+                    </Animatable.View>
 
-                <Text style={styles.title}>Nome</Text>
-                <TextInput
-                    placeholder="Digite seu nome..."
-                    value={email}
-                    onChangeText={ (text) => setNome (text) }
-                    style={styles.input}
-                />   
+                <Animatable.View animation="fadeInUp" style={styles.containerForm}>
 
-                <Text style={styles.title}>Email</Text>
-                <TextInput
-                    placeholder="Digite um email..."
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoComplete="email"
-                    value={email}
-                    onChangeText={ (text) => setEmail(text) }
-                    style={styles.input}
-                />      
-
-                <Text style={styles.title}>Senha</Text>
-                <View style={styles.inputArea}>
+                    <Text style={styles.title}>Nome</Text>
                     <TextInput
-                        placeholder="Informe sua senha..."
+                        placeholder="Digite seu nome..."
+                        value={name}
+                        onChangeText={ (text) => setName (text) }
                         style={styles.input}
-                        value={input}
-                        onChangeText={ ( texto) => setInput(texto) }
-                        secureTextEntry={hidePass}
-                        value1={password}
-                        onChangeText1={ ( texto) => setPassword(texto) }
-                    />
+                    />   
 
-                    <TouchableOpacity style={styles.icon} onPress={ () => setHidePass(!hidePass)}>
-                    {hidePass ?
-                        <Ionicons name="eye" color="#121212" size={25} />
-                        :
-                        <Ionicons name="eye-off" color="#121212" size={25} />
-                    }
+                    <Text style={styles.title}>Email</Text>
+                    <TextInput
+                        placeholder="Digite um email..."
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        autoComplete="email"
+                        value={email}
+                        onChangeText={ (text) => setEmail(text) }
+                        style={styles.input}
+                    />      
+
+                    <Text style={styles.title}>Senha</Text>
+                    <View style={styles.inputArea}>
+                        <TextInput
+                            placeholder="Informe sua senha..."
+                            style={styles.input}
+                            //value={input}
+                           // onChangeText={ ( texto) => setInput(texto) }
+                            secureTextEntry={hidePass}
+                            value={password}
+                            onChangeText={ ( texto) => setPassword(texto) }
+                        />
+
+                        <TouchableOpacity style={styles.icon} onPress={ () => setHidePass(!hidePass)}>
+                        {hidePass ?
+                            <Ionicons name="eye" color="#121212" size={25} />
+                            :
+                            <Ionicons name="eye-off" color="#121212" size={25} />
+                        }
+                        </TouchableOpacity>
+
+                    </View>
+
+                    <TouchableOpacity 
+                        style={styles.button}
+                        onPress={handleSignIn}
+                        
+                        >
+                        <Text style={styles.buttonText}>Cadastrar</Text>
                     </TouchableOpacity>
 
-                </View>
-
-                <TouchableOpacity 
-                    style={styles.button}
-                    onPress={handleLogin}
-                    >
-                    <Text style={styles.buttonText}>Cadastrar</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                    style={styles.buttonRegister}
-                    onPress={ () => navigation.navigate('Login')}
-                    >
-                    <Text style={styles.registerText}>Já tenho uma conta</Text>
-                </TouchableOpacity>
-            </Animatable.View>
-        </View>    
+                    <TouchableOpacity 
+                        style={styles.buttonRegister}
+                        onPress={ () => navigation.navigate('Login')}
+                        >
+                        <Text style={styles.registerText}>Já tenho uma conta</Text>
+                    </TouchableOpacity>
+                </Animatable.View>
+            </ScrollView>   
+        </KeyboardAvoidingView>   
     );
 }
 
@@ -93,6 +123,11 @@ const styles = StyleSheet.create({
     container:{
         flex:1,
         backgroundColor:'#238dd1',
+    },
+    
+    scrollContainer: {
+        flexGrow: 1,
+        justifyContent: 'center',
     },
     
     inputArea:{

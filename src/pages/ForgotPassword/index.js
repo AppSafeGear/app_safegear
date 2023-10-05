@@ -1,24 +1,30 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 
+import firebase from '../../services/firebaseConnection';
+
 export default function ForgotPassword() {
   const navigation = useNavigation();
+
   const [email, setEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
 
-  const handleResetPassword = () => {
-    firebase
-      .auth()
-      .sendPasswordResetEmail(email)
+
+  function handleResetPassword() {
+    firebase.auth().sendPasswordResetEmail(email)
       .then(() => {
-        setResetSent(true);
-      })
-      .catch((error) => {
-        console.error('Erro ao enviar e-mail de redefinição de senha: ', error);
-      });
-  };
+      setResetSent(true);
+      alert("Foi enviado um email para: " + email + "  Verifique a sua caixa de email.");
+      navigation.navigate('Login');
+    })
+    
+    .catch(error => {
+      alert("Digite um email válido !")
+    });
+    return;
+  }
 
   return (
     <View style={styles.container}>
@@ -30,6 +36,9 @@ export default function ForgotPassword() {
         <TextInput
           style={styles.input}
           placeholder="E-mail"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoComplete="email"
           onChangeText={(text) => setEmail(text)}
           value={email}
         />
@@ -124,8 +133,3 @@ const styles = StyleSheet.create({
   },
 
 })
-
-
-
-
-
